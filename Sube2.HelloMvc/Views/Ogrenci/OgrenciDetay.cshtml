@@ -1,0 +1,65 @@
+﻿@model Ogrenci
+@{
+    ViewData["Title"] = "OgrenciDetay";
+}
+<h1>Öğrenci Detay</h1>
+
+<form id="ogrenciForm">
+    <input type="hidden" asp-for="Ogrenciid" />
+    <div class="mb-3">
+        <label class="form-label">Ad</label>
+        <input type="text" class="form-control" asp-for="Ad" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Soyad</label>
+        <input type="text" class="form-control" asp-for="Soyad" />
+    </div>
+    <input type="submit" class="btn btn-success" value="Kaydet" />
+</form>
+
+<div id="mesajAlani"></div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const form = document.getElementById('ogrenciForm');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); 
+
+                const formData = new FormData(form);
+
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+                       fetch('/Ogrenci/OgrenciDetay', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.json(); 
+        })
+        .then(result => {
+            if (result.success) {
+                window.location.href = result.redirectUrl;
+            } else {
+                document.getElementById('mesajAlani').innerHTML =
+                    `<div class="alert alert-warning">Bir sorun oluştu.</div>`;
+            }
+        })
+        .catch(error => {
+            document.getElementById('mesajAlani').innerHTML =
+                `<div class="alert alert-danger">${error.message}</div>`;
+        });
+
+            });
+        });
+    </script>
+}
